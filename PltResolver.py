@@ -29,6 +29,23 @@ def PltResolver64():
 			if v1 == tag:
 				return v2
 			idx+=1
+
+	def ParseTypes(plt_ea):
+		# parse types
+		if idc.GetType(plt_ea) == None:
+			try:
+				demangle = idc.demangle_name(idc.get_func_name(plt_ea),1)
+				if demangle == None:
+					return
+				guess = '__int64 A' + demangle[demangle.index('('):demangle.index(')')+1]
+				ret = idc.SetType(plt_ea,guess)
+				if ret != True :
+					print('Fail call ParseTypes(0x%x)'%(plt_ea))
+			except Exception as e:
+				print("Raise Exception in arseTypes(0x%x)" % (plt_ea))
+				print(e)
+				return
+
 	
 	def __PltResolver(jmprel,strtab,symtab):
 		idx=0
@@ -52,6 +69,7 @@ def PltResolver64():
 				for addr in idautils.DataRefsTo(r_off):  # 新版本gcc中got表的ref只在.plt.sec段出现
 					plt_sec_func = idaapi.get_func(addr).startEA
 					idc.set_name(plt_sec_func,'_'+name) # 其实重点是.plt.sec设置为 _xxx 即可正常解析
+					ParseTypes(plt_sec_func)
 					SetFuncFlags(plt_sec_func)
 			idx+=1
 
