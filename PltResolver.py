@@ -49,9 +49,9 @@ def PltResolver64():
 				idc.set_name(plt_func,'j_'+name)
 				SetFuncFlags(plt_func)
 				# rename plt.sec
-				for addr in idautils.DataRefsTo(r_off):
+				for addr in idautils.DataRefsTo(r_off):  # 新版本gcc中got表的ref只在.plt.sec段出现
 					plt_sec_func = idaapi.get_func(addr).startEA
-					idc.set_name(plt_sec_func,'_'+name)
+					idc.set_name(plt_sec_func,'_'+name) # 其实重点是.plt.sec设置为 _xxx 即可正常解析
 					SetFuncFlags(plt_sec_func)
 			idx+=1
 
